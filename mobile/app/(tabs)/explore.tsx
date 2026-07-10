@@ -162,7 +162,6 @@ export default function ExploreScreen() {
                     {/* Floating Badges */}
                     <View className="absolute top-6 left-6 flex-row space-x-2">
                       <Badge label={`${selectedProfile.match_percent}% Match`} />
-                      <Badge label="1.4 Km" />
                     </View>
 
                     {/* Close Button */}
@@ -181,12 +180,7 @@ export default function ExploreScreen() {
                         <Text className="text-white text-3xl font-bold font-display italic">
                           {selectedProfile.name}, {new Date().getFullYear() - new Date(selectedProfile.birthdate).getFullYear()}
                         </Text>
-                        <View className="flex-row items-center mt-1.5">
-                          <MapPin size={14} color="#9A8FB8" />
-                          <Text className="text-text-secondary text-[13px] font-sans ml-1">
-                            New York, USA (1.4 km away)
-                          </Text>
-                        </View>
+                        {/* Location / distance display removed */}
                       </View>
 
                       {/* Online state */}

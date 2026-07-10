@@ -162,13 +162,6 @@ export default function ChatThreadScreen() {
       color: "#F59E0B",
     },
     {
-      label: "Location",
-      icon: MapPin,
-      bg: "rgba(139, 92, 246, 0.1)",
-      border: "rgba(139, 92, 246, 0.2)",
-      color: "#8B5CF6",
-    },
-    {
       label: "Contact",
       icon: User,
       bg: "rgba(236, 72, 153, 0.1)",

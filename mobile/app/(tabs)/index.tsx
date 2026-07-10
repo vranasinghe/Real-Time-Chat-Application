@@ -297,18 +297,11 @@ export default function DiscoveryScreen() {
 
         {/* ── Header ── */}
         <View style={styles.header}>
-          {/* Location left side */}
-          <View style={styles.locationRow}>
-            <View style={styles.locationIconBox}>
-              <MapPin size={16} color="#7C5CFF" />
-            </View>
-            <View style={styles.locationText}>
-              <Text style={styles.locationLabel}>Location</Text>
-              <View style={styles.locationValueRow}>
-                <Text style={styles.locationValue}>New York</Text>
-                <ChevronDown size={13} color="#9A8FB8" style={{ marginLeft: 3 }} />
-              </View>
-            </View>
+          {/* Brand Logo left side */}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <Text style={{ color: "#FFFFFF", fontSize: 26, fontWeight: "bold", fontFamily: "Outfit-Bold" }}>
+              Dateza
+            </Text>
           </View>
 
           {/* Bell right side */}

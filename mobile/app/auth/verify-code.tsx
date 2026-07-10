@@ -36,7 +36,7 @@ export default function VerifyCodeScreen() {
       if (purpose === "reset") {
         router.push("/auth/reset-password");
       } else {
-        router.push("/profile-setup/location");
+        router.push("/profile-setup/birthday");
       }
     }, 1500);
   };

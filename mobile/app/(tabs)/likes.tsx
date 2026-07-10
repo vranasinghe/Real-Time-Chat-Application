@@ -75,11 +75,7 @@ export default function LikesScreen() {
                     <Badge label={`${profile.match_percent}%`} />
                   </View>
 
-                  {/* Match Location Stamp */}
-                  <View className="absolute bottom-14 left-3 flex-row items-center bg-black/40 border border-white/5 rounded-full px-2 py-0.5 backdrop-blur-md">
-                    <Navigation size={10} color="#FFFFFF" />
-                    <Text className="text-white text-[10px] font-sans ml-1">1.4 Km</Text>
-                  </View>
+
 
                   {/* Floating Action Button (Like Back) */}
                   <Pressable
