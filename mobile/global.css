@@ -1,0 +1,27 @@
+/* Google Fonts — loaded for web renderer. Native uses expo-font asset bundles. */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #0E0720;
+    color: #FFFFFF;
+  }
+
+  /* Map expo-font registered names → web font families */
+  * {
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-space: 'Space Grotesk', system-ui, sans-serif;
+  }
+}
+
+/* Polyfill expo-font registered names for NativeWind on web */
+.font-sans, [class*="font-sans"] { font-family: 'Inter', system-ui, sans-serif !important; }
+.font-sansMedium { font-family: 'Inter', system-ui, sans-serif !important; font-weight: 500 !important; }
+.font-sansSemi { font-family: 'Inter', system-ui, sans-serif !important; font-weight: 600 !important; }
+.font-sansBold { font-family: 'Inter', system-ui, sans-serif !important; font-weight: 700 !important; }
+.font-display { font-family: 'Space Grotesk', system-ui, sans-serif !important; font-weight: 700 !important; }
+.font-displaySemi { font-family: 'Space Grotesk', system-ui, sans-serif !important; font-weight: 600 !important; }

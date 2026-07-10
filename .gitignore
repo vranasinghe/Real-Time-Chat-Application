@@ -1,50 +1,39 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
+# Dependencies
+**/node_modules/
 
-# dependencies
-node_modules/
+# Mobile specific ignores
+mobile/.expo/
+mobile/dist/
+mobile/web-build/
+mobile/expo-env.d.ts
+mobile/.kotlin/
+mobile/*.orig.*
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+mobile/.metro-health-check*
+mobile/ios/
+mobile/android/
 
-# Expo
-.expo/
-dist/
-web-build/
-expo-env.d.ts
-
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
-
-# Metro
-.metro-health-check*
-
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
-
-# macOS
-.DS_Store
-*.pem
-
-# local env files
+# Environment files
+**/.*env
+**/.*env.local
+**/.*env.*.local
 .env
 .env*.local
 
-# typescript
-*.tsbuildinfo
+# Debug and Logs
+**/npm-debug.*
+**/yarn-debug.*
+**/yarn-error.*
+.DS_Store
+*.pem
 
-example
-
-# generated native folders
-/ios
-/android
-
-# scratch/temp
+# Scratch / Temp files
 scratch/
+mobile/scratch/
 
-# misc stray files
+# Miscellaneous
 {
