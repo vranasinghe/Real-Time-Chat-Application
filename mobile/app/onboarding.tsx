@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView, Pressable } from "react-native";
+import { View, Text, SafeAreaView, Pressable, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { ArrowRight } from "lucide-react-native";
 import { PrimaryButton, GhostButton } from "@/components/PrimaryButton";
@@ -42,7 +42,11 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
-      <View className="flex-1 justify-between px-6 py-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+        className="px-6 py-6"
+        showsVerticalScrollIndicator={false}
+      >
         {/* Top Navigation & Progress Bar */}
         <View className="w-full">
           {/* Segmented Progress Indicators */}
@@ -94,7 +98,7 @@ export default function OnboardingScreen() {
             }
           />
         </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

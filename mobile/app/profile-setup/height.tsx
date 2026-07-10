@@ -36,7 +36,11 @@ export default function HeightSetupScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
-      <View className="flex-1 justify-between px-6 py-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+        className="px-6 py-6"
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* Header */}
         <View className="w-full">
@@ -106,7 +110,7 @@ export default function HeightSetupScreen() {
           />
         </View>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

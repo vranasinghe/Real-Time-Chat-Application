@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, SafeAreaView, Pressable, Alert, Image } from "react-native";
+import { View, Text, SafeAreaView, Pressable, Alert, Image, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -7,8 +7,11 @@ import { PrimaryButton } from "@/components/PrimaryButton";
 export default function GetStartedScreen() {
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
-      <View className="flex-1 justify-between px-6 py-6">
-        
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+        className="px-6 py-6"
+        showsVerticalScrollIndicator={false}
+      >
         {/* Illustration Section (dating couple style) */}
         <View className="items-center justify-center mt-6 relative">
           <View className="w-72 h-72 rounded-full bg-primary/10 blur-3xl absolute" />
@@ -88,7 +91,7 @@ export default function GetStartedScreen() {
           </View>
         </View>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

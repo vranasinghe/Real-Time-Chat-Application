@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, SafeAreaView, Pressable, Alert } from "react-native";
+import { View, Text, SafeAreaView, Pressable, Alert, ScrollView } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -49,7 +49,11 @@ export default function VerifyCodeScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
-      <View className="flex-1 justify-between px-6 py-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+        className="px-6 py-6"
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* Top Section */}
         <View className="w-full">
@@ -114,7 +118,7 @@ export default function VerifyCodeScreen() {
           />
         </View>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

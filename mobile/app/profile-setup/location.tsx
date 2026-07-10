@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, SafeAreaView, Pressable, Alert } from "react-native";
+import { View, Text, SafeAreaView, Pressable, Alert, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { MapPin, Navigation } from "lucide-react-native";
 import { PrimaryButton, GhostButton } from "@/components/PrimaryButton";
@@ -31,7 +31,11 @@ export default function LocationSetupScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
-      <View className="flex-1 justify-between px-6 py-6">
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1, justifyContent: "space-between" }}
+        className="px-6 py-6"
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* Content Box */}
         <View className="flex-1 justify-center items-center px-4">
@@ -67,7 +71,7 @@ export default function LocationSetupScreen() {
           />
         </View>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
