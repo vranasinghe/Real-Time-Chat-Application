@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, SafeAreaView, Pressable, Alert, Image, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, Pressable, Alert, ScrollView } from "react-native";
 import { router } from "expo-router";
 import { Mail } from "lucide-react-native";
 import { PrimaryButton } from "@/components/PrimaryButton";
@@ -12,21 +12,14 @@ export default function GetStartedScreen() {
         className="px-6 py-6"
         showsVerticalScrollIndicator={false}
       >
-        {/* Illustration Section (dating couple style) */}
-        <View className="items-center justify-center mt-6 relative">
+        {/* Illustration Section */}
+        <View className="items-center justify-center mt-12 mb-6 relative">
           <View className="w-72 h-72 rounded-full bg-primary/10 blur-3xl absolute" />
           <View className="w-56 h-56 rounded-full bg-like/5 blur-2xl absolute -top-8" />
-          
-          {/* Couple Illustration */}
-          <Image
-            source={require("@/assets/images/dating_couple.png")}
-            className="w-64 h-64 rounded-3xl mb-6 border border-white/10"
-            resizeMode="cover"
-          />
 
           {/* Let's Get Started Title & Subtitle */}
-          <Text className="text-white text-3xl font-bold font-display text-center tracking-tight mb-2">
-            Lets Get Started
+          <Text className="text-white text-3.5xl font-bold font-display text-center tracking-tight mb-3">
+            Let's Get Started
           </Text>
           <Text className="text-text-secondary text-base font-sans text-center px-6 leading-6">
             Discover love, your way with Dateza
