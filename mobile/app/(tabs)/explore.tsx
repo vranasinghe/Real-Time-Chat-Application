@@ -88,23 +88,23 @@ export default function ExploreScreen() {
           </ScrollView>
         </View>
 
-        {/* List of profiles grid */}
+        {/* List of profiles grid (2 columns, 4 rows max) */}
         <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
-          <View className="flex-row flex-wrap justify-between">
-            {filteredProfiles.map((profile, index) => (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between", width: "100%" }}>
+            {filteredProfiles.slice(0, 8).map((profile, index) => (
               <Animated.View
                 key={profile.id}
                 entering={FadeInDown.delay(index * 60).springify()}
-                className="w-[48%] mb-4"
+                style={{ width: "48%", marginBottom: 16 }}
               >
                 <Pressable
                   onPress={() => setSelectedProfile(profile)}
                   className="w-full bg-bg-surface border border-white/5 rounded-3xl overflow-hidden active:opacity-90"
                 >
                   {/* Photo cover */}
-                  <View className="aspect-square w-full relative">
+                  <View style={{ aspectRatio: 1.0, width: "100%", position: "relative" }}>
                     {profile.photos[0] ? (
-                      <Image source={{ uri: profile.photos[0] }} className="w-full h-full object-cover" />
+                      <Image source={{ uri: profile.photos[0] }} style={{ width: "100%", height: "100%", borderRadius: 0 }} resizeMode="cover" />
                     ) : (
                       <View className="flex-1 items-center justify-center bg-bg-surface">
                         <Compass size={24} color="#9A8FB8" />
