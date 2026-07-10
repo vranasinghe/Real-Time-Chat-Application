@@ -26,7 +26,7 @@ const initDb = async () => {
 
 const seedMockProfiles = async () => {
   try {
-    const check = await pool.query("SELECT COUNT(*) FROM profiles");
+    const check = await pool.query("SELECT COUNT(*) FROM profiles WHERE id LIKE 'seed-%'");
     const count = parseInt(check.rows[0].count);
     if (count > 0) {
       return;
