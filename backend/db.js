@@ -3,9 +3,14 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.warn("WARNING: DATABASE_URL environment variable is not defined. Please configure it in your Render settings.");
+}
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.DATABASE_URL.includes("supabase.co") || process.env.DATABASE_URL.includes("supabase.com")
+  connectionString: connectionString,
+  ssl: connectionString && (connectionString.includes("supabase.co") || connectionString.includes("supabase.com"))
     ? { rejectUnauthorized: false }
     : false
 });
