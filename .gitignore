@@ -1,6 +1,9 @@
 # Dependencies
 **/node_modules/
 
+# Build output
+/dist/
+
 # Mobile specific ignores
 mobile/.expo/
 mobile/dist/

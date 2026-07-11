@@ -208,9 +208,6 @@ export function SwipeDeck({ profiles, onSwipe, onMessagePress, onReset }: SwipeD
                   <View style={styles.badge}>
                     <Text style={styles.badgeTxt}>{profile.match_percent}% Match</Text>
                   </View>
-                  <View style={styles.badge}>
-                    <Text style={styles.badgeTxt}>1.4 Km</Text>
-                  </View>
                 </View>
 
                 {/* Top-right three-dot */}

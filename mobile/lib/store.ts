@@ -96,7 +96,7 @@ interface AppState {
   signUp: (email: string, pass: string, name: string) => Promise<boolean>;
   completeSetup: (profileData: Partial<Profile>) => Promise<void>;
   signOut: () => Promise<void>;
-  createQuickMatch: (profile: Profile) => Promise<void>;
+  createQuickMatch: (profile: Profile) => Promise<{ success: boolean; error?: string }>;
 
   // Swipe Actions
   recordSwipe: (swipeeId: string, direction: "like" | "pass" | "super", message?: string) => Promise<void>;
@@ -129,7 +129,26 @@ export const useAppStore = create<AppState>()(
       swipes: [],
       matches: [],
       messages: [],
-      stories: [],
+      stories: [
+        {
+          id: "story-mock-liana-1",
+          user_id: "seed-liana",
+          user_name: "Liana Ray",
+          user_avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
+          media_url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=600&auto=format&fit=crop&q=80",
+          media_type: "image",
+          created_at: new Date(Date.now() - 3600000).toISOString(),
+        },
+        {
+          id: "story-mock-elena-1",
+          user_id: "seed-elena",
+          user_name: "Elena",
+          user_avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
+          media_url: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=600&auto=format&fit=crop&q=80",
+          media_type: "image",
+          created_at: new Date(Date.now() - 7200000).toISOString(),
+        }
+      ],
       activeMatch: null,
 
       initializeStore: async () => {
@@ -394,7 +413,7 @@ export const useAppStore = create<AppState>()(
 
       createQuickMatch: async (profile) => {
         const { user, token, isUsingSupabase } = get();
-        if (!user) return;
+        if (!user) return { success: false, error: "Not signed in" };
 
         if (isUsingSupabase && token) {
           try {
@@ -418,9 +437,12 @@ export const useAppStore = create<AppState>()(
               if (socket) {
                 socket.emit("join_room", data.id);
               }
+              return { success: true };
             }
+            return { success: false, error: data.error || "Could not start a chat with this profile" };
           } catch (e) {
             console.error("Backend quick match creation failed", e);
+            return { success: false, error: "Could not start a chat with this profile" };
           }
         } else {
           // Fallback to local memory mock match
@@ -437,6 +459,7 @@ export const useAppStore = create<AppState>()(
             if (matchExists) return {};
             return { matches: [newMatch, ...state.matches] };
           });
+          return { success: true };
         }
       },
 
@@ -638,6 +661,7 @@ export const useAppStore = create<AppState>()(
 
         if (!socketConnection) {
           socketConnection = io(BACKEND_URL, {
+            auth: { token },
             extraHeaders: {
               Authorization: `Bearer ${token}`,
             },

@@ -8,6 +8,7 @@ import {
   Image,
   StyleSheet,
   Dimensions,
+  Platform,
 } from "react-native";
 import { router } from "expo-router";
 import { useAppStore, Match } from "@/lib/store";
@@ -94,7 +95,7 @@ export default function ConversationsScreen() {
         {/* ── Horizontal active-user story bubbles ── */}
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator={false}
+          showsHorizontalScrollIndicator={Platform.OS === "web"}
           style={styles.storyScroll}
           contentContainerStyle={styles.storyContent}
         >
@@ -152,7 +153,7 @@ export default function ConversationsScreen() {
 
         {/* ── Chat list ── */}
         <ScrollView
-          showsVerticalScrollIndicator={false}
+          showsVerticalScrollIndicator={Platform.OS === "web"}
           style={styles.chatList}
           contentContainerStyle={{ paddingBottom: 110 }}
         >

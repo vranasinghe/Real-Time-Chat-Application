@@ -1,14 +1,30 @@
 const express = require("express");
+const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("./db");
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "super-secret-jwt-key";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is required but was not set");
+}
 
 // Helper to generate UUID-like strings
 function generateId() {
-  return "usr_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return "usr_" + crypto.randomUUID();
+}
+
+const MIN_AGE_YEARS = 18;
+
+function isAtLeastMinAge(birthdate) {
+  const dob = new Date(birthdate);
+  if (isNaN(dob.getTime())) return false;
+
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - MIN_AGE_YEARS);
+  return dob <= cutoff;
 }
 
 // Middleware to authenticate JWT token
@@ -34,6 +50,10 @@ router.post("/register", async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password || !name) {
     return res.status(400).json({ error: "Email, password, and name are required" });
+  }
+
+  if (password.length < 8) {
+    return res.status(400).json({ error: "Password must be at least 8 characters long" });
   }
 
   const cleanEmail = email.trim().toLowerCase();
@@ -108,6 +128,10 @@ router.post("/complete-setup", authenticateToken, async (req, res) => {
   const { birthdate, gender, looking_for, bio, height_cm, interests, photos, lat, lng } = req.body;
   const userId = req.user.id;
 
+  if (birthdate && !isAtLeastMinAge(birthdate)) {
+    return res.status(400).json({ error: `You must be at least ${MIN_AGE_YEARS} years old to use Dateza` });
+  }
+
   try {
     const result = await db.query(
       `UPDATE profiles
@@ -152,5 +176,6 @@ router.get("/me", authenticateToken, async (req, res) => {
 
 module.exports = {
   router,
-  authenticateToken
+  authenticateToken,
+  JWT_SECRET
 };

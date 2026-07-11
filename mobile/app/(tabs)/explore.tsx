@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, SafeAreaView, Pressable, ScrollView, TextInput, Image, Modal, Alert } from "react-native";
 import { router } from "expo-router";
-import { Search, MapPin, X, Heart, MessageSquare, Compass } from "lucide-react-native";
+import { Search, X, Heart, MessageSquare, Compass } from "lucide-react-native";
 import { useAppStore, Profile } from "@/lib/store";
 import { Chip } from "@/components/Chip";
 import { Badge } from "@/components/Badge";
@@ -32,8 +32,15 @@ export default function ExploreScreen() {
 
   const handleMessagePress = async (profile: Profile) => {
     setSelectedProfile(null);
-    await useAppStore.getState().createQuickMatch(profile);
-    router.replace("/(tabs)/chat");
+    const result = await useAppStore.getState().createQuickMatch(profile);
+    if (result.success) {
+      router.replace("/(tabs)/chat");
+    } else {
+      Alert.alert(
+        "Not matched yet",
+        "You can chat once you've both liked each other. Try liking their profile first!"
+      );
+    }
   };
 
   const handleLikePress = async (profile: Profile) => {

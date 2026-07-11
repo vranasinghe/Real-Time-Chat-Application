@@ -1,8 +1,23 @@
 const express = require("express");
+const crypto = require("crypto");
 const db = require("./db");
 const { authenticateToken } = require("./auth");
 
 const router = express.Router();
+
+// Two users may only be matched once they have both swiped like/super on each other
+async function hasMutualLike(userA, userB) {
+  const result = await db.query(
+    `SELECT 1 FROM swipes
+     WHERE swiper_id = $1 AND swipee_id = $2 AND direction IN ('like', 'super')
+       AND EXISTS (
+         SELECT 1 FROM swipes
+         WHERE swiper_id = $2 AND swipee_id = $1 AND direction IN ('like', 'super')
+       )`,
+    [userA, userB]
+  );
+  return result.rows.length > 0;
+}
 
 // Route: Get all matches with other user's profile details populated
 router.get("/", authenticateToken, async (req, res) => {
@@ -60,15 +75,26 @@ router.post("/", authenticateToken, async (req, res) => {
     if (existing.rows.length > 0) {
       matchRecord = existing.rows[0];
     } else {
-      const matchId = "match_quick_" + Math.random().toString(36).substring(2, 12);
+      const mutual = await hasMutualLike(userId, targetUserId);
+      if (!mutual) {
+        return res.status(403).json({ error: "You can only start a chat once you've both liked each other" });
+      }
+
+      const matchId = "match_" + crypto.randomUUID();
       const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
       const insert = await db.query(
         `INSERT INTO matches (id, user_a, user_b, expires_at)
          VALUES ($1, $2, $3, $4)
+         ON CONFLICT (user_a, user_b) DO NOTHING
          RETURNING *`,
         [matchId, user_a, user_b, expiresAt]
       );
       matchRecord = insert.rows[0];
+      if (!matchRecord) {
+        // Lost the race to a concurrent request — fetch the row it created
+        const raced = await db.query("SELECT * FROM matches WHERE user_a = $1 AND user_b = $2", [user_a, user_b]);
+        matchRecord = raced.rows[0];
+      }
     }
 
     // Populate other user details
@@ -175,7 +201,6 @@ router.post("/quick", authenticateToken, async (req, res) => {
   }
 
   try {
-    const matchId = "match_quick_" + Math.random().toString(36).substring(2, 15);
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
     const user_a = userId < profile_id ? userId : profile_id;
@@ -191,13 +216,24 @@ router.post("/quick", authenticateToken, async (req, res) => {
     if (existing.rows.length > 0) {
       matchRecord = existing.rows[0];
     } else {
+      const mutual = await hasMutualLike(userId, profile_id);
+      if (!mutual) {
+        return res.status(403).json({ error: "You can only start a chat once you've both liked each other" });
+      }
+
+      const matchId = "match_" + crypto.randomUUID();
       const insertResult = await db.query(
         `INSERT INTO matches (id, user_a, user_b, expires_at)
          VALUES ($1, $2, $3, $4)
+         ON CONFLICT (user_a, user_b) DO NOTHING
          RETURNING *`,
         [matchId, user_a, user_b, expiresAt]
       );
       matchRecord = insertResult.rows[0];
+      if (!matchRecord) {
+        const raced = await db.query("SELECT * FROM matches WHERE user_a = $1 AND user_b = $2", [user_a, user_b]);
+        matchRecord = raced.rows[0];
+      }
     }
 
     // Get profile details

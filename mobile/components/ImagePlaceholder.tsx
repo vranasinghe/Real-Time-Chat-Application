@@ -1,13 +1,26 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image, ImageSourcePropType } from "react-native";
 import { Image as ImageIcon } from "lucide-react-native";
 
 interface ImagePlaceholderProps {
   aspectRatio?: number;
   width?: string | number;
+  /** When provided, renders this image instead of the empty placeholder. */
+  source?: ImageSourcePropType;
 }
 
-export function ImagePlaceholder({ aspectRatio = 4 / 5, width = "100%" }: ImagePlaceholderProps) {
+export function ImagePlaceholder({ aspectRatio = 4 / 5, width = "100%", source }: ImagePlaceholderProps) {
+  if (source) {
+    return (
+      <View
+        style={{ aspectRatio }}
+        className="bg-bg-surface border border-white/10 rounded-3xl overflow-hidden w-full"
+      >
+        <Image source={source} style={{ width: "100%", height: "100%" }} resizeMode="cover" />
+      </View>
+    );
+  }
+
   return (
     <View
       style={{ aspectRatio }}

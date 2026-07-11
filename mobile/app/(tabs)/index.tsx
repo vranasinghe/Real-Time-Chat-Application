@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -15,11 +15,9 @@ import {
   Platform,
 } from "react-native";
 import { router } from "expo-router";
-import { 
-  Bell, 
-  MapPin, 
-  ChevronDown, 
-  Search, 
+import {
+  Bell,
+  Search,
   Plus, 
   Trash2, 
   X, 
@@ -108,7 +106,23 @@ export default function DiscoveryScreen() {
   const [uploading, setUploading] = useState(false);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
+  const [selectedStories, setSelectedStories] = useState<Story[]>([]);
+
   const myStories = stories.filter((s) => s.user_id === user?.id);
+
+  // Group other users' stories by user_id
+  const otherStoriesGrouped = useMemo(() => {
+    const groups: { [userId: string]: Story[] } = {};
+    stories.forEach((s) => {
+      if (s.user_id !== user?.id) {
+        if (!groups[s.user_id]) {
+          groups[s.user_id] = [];
+        }
+        groups[s.user_id].push(s);
+      }
+    });
+    return groups;
+  }, [stories, user?.id]);
 
 
 
@@ -123,7 +137,7 @@ export default function DiscoveryScreen() {
   }, [activeMatch]);
 
   const handleNextStory = () => {
-    if (currentStoryIndex < myStories.length - 1) {
+    if (currentStoryIndex < selectedStories.length - 1) {
       setCurrentStoryIndex(currentStoryIndex + 1);
       setStoryProgress(0);
     } else {
@@ -141,7 +155,7 @@ export default function DiscoveryScreen() {
 
   useEffect(() => {
     let interval: any;
-    if (viewStoryModalVisible && myStories.length > 0) {
+    if (viewStoryModalVisible && selectedStories.length > 0) {
       interval = setInterval(() => {
         if (!isTimerPaused) {
           setStoryProgress((prev) => {
@@ -157,16 +171,24 @@ export default function DiscoveryScreen() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [viewStoryModalVisible, currentStoryIndex, myStories.length, isTimerPaused]);
+  }, [viewStoryModalVisible, currentStoryIndex, selectedStories.length, isTimerPaused]);
 
   const handleMyStoryPress = () => {
     if (myStories.length > 0) {
+      setSelectedStories(myStories);
       setCurrentStoryIndex(0);
       setStoryProgress(0);
       setViewStoryModalVisible(true);
     } else {
       setAddStoryModalVisible(true);
     }
+  };
+
+  const handleOtherStoryPress = (userClips: Story[]) => {
+    setSelectedStories(userClips);
+    setCurrentStoryIndex(0);
+    setStoryProgress(0);
+    setViewStoryModalVisible(true);
   };
 
   const pickMedia = async (mediaType: "image" | "video") => {
@@ -228,7 +250,7 @@ export default function DiscoveryScreen() {
   };
 
   const handleDeleteCurrentStory = async () => {
-    const storyToDelete = myStories[currentStoryIndex];
+    const storyToDelete = selectedStories[currentStoryIndex];
     if (storyToDelete) {
       setIsTimerPaused(true);
       Alert.alert("Delete Story", "Are you sure you want to delete this story?", [
@@ -243,10 +265,15 @@ export default function DiscoveryScreen() {
           onPress: async () => {
             await deleteStory(storyToDelete.id);
             setIsTimerPaused(false);
-            if (myStories.length <= 1) {
+            const updatedSelected = selectedStories.filter((s) => s.id !== storyToDelete.id);
+            setSelectedStories(updatedSelected);
+            if (updatedSelected.length === 0) {
               setViewStoryModalVisible(false);
             } else {
-              handleNextStory();
+              if (currentStoryIndex >= updatedSelected.length) {
+                setCurrentStoryIndex(updatedSelected.length - 1);
+              }
+              setStoryProgress(0);
             }
           },
         },
@@ -328,52 +355,64 @@ export default function DiscoveryScreen() {
 
         {/* ── Stories row ── */}
         <View style={styles.storiesContainer}>
-          <Pressable
-            onPress={handleMyStoryPress}
-            style={styles.storyItem}
-          >
-            <View style={styles.storyAvatarWrap}>
-              {/* Ring */}
-              <View
-                style={[
-                  styles.storyRing,
-                  myStories.length > 0
-                    ? styles.storyRingActive
-                    : styles.storyRingDashed,
-                ]}
-              >
-                <Image
-                  source={{ uri: (user?.photos && user.photos.length > 0) ? user.photos[0] : "https://i.pravatar.cc/150?img=47" }}
-                  style={styles.storyAvatar}
-                />
+          <ScrollView horizontal showsHorizontalScrollIndicator={Platform.OS === "web"} contentContainerStyle={{ alignItems: "center" }}>
+            <Pressable
+              onPress={handleMyStoryPress}
+              style={[styles.storyItem, { marginRight: 16 }]}
+            >
+              <View style={styles.storyAvatarWrap}>
+                {/* Ring */}
+                <View
+                  style={[
+                    styles.storyRing,
+                    myStories.length > 0
+                      ? styles.storyRingActive
+                      : styles.storyRingDashed,
+                  ]}
+                >
+                  <Image
+                    source={{ uri: (user?.photos && user.photos.length > 0) ? user.photos[0] : "https://i.pravatar.cc/150?img=47" }}
+                    style={styles.storyAvatar}
+                  />
+                </View>
+
+                {/* Plus badge */}
+                <Pressable
+                  onPress={() => setAddStoryModalVisible(true)}
+                  style={styles.plusBadge}
+                >
+                  <Plus size={10} color="#fff" strokeWidth={3} />
+                </Pressable>
               </View>
 
-              {/* Plus badge */}
-              <Pressable
-                onPress={() => setAddStoryModalVisible(true)}
-                style={styles.plusBadge}
-              >
-                <Plus size={10} color="#fff" strokeWidth={3} />
-              </Pressable>
-            </View>
+              <Text style={styles.storyName}>My Story</Text>
+            </Pressable>
 
-            <Text style={styles.storyName}>My Story</Text>
-          </Pressable>
-          
-          {/* Display instructions or story summary */}
-          <View style={styles.storiesTextContainer}>
-            {myStories.length > 0 ? (
-              <>
-                <Text style={styles.storyStatusTitle}>Your Story is Active 🌟</Text>
-                <Text style={styles.storyStatusSub}>Tap avatar to view ({myStories.length} clip{myStories.length > 1 ? "s" : ""})</Text>
-              </>
-            ) : (
-              <>
-                <Text style={styles.storyStatusTitle}>Share Your Day ✨</Text>
-                <Text style={styles.storyStatusSub}>Add photos or videos to your story</Text>
-              </>
-            )}
-          </View>
+            {/* Other Members' Stories */}
+            {Object.keys(otherStoriesGrouped).map((userId) => {
+              const userClips = otherStoriesGrouped[userId];
+              const firstClip = userClips[0];
+              return (
+                <Pressable
+                  key={userId}
+                  onPress={() => handleOtherStoryPress(userClips)}
+                  style={[styles.storyItem, { marginRight: 16 }]}
+                >
+                  <View style={styles.storyAvatarWrap}>
+                    <View style={[styles.storyRing, styles.storyRingActive]}>
+                      <Image
+                        source={{ uri: firstClip.user_avatar }}
+                        style={styles.storyAvatar}
+                      />
+                    </View>
+                  </View>
+                  <Text style={styles.storyName} numberOfLines={1} ellipsizeMode="tail">
+                    {firstClip.user_name.split(" ")[0]}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
         </View>
 
         {/* ── SwipeDeck ── */}
@@ -575,13 +614,13 @@ export default function DiscoveryScreen() {
           onRequestClose={() => setViewStoryModalVisible(false)}
         >
           <SafeAreaView style={styles.storyViewerContainer}>
-            {myStories.length > 0 && currentStoryIndex < myStories.length ? (
+            {selectedStories.length > 0 && currentStoryIndex < selectedStories.length ? (
               <View style={{ flex: 1 }}>
                 
                 {/* Media Element */}
-                {myStories[currentStoryIndex].media_type === "video" ? (
+                {selectedStories[currentStoryIndex].media_type === "video" ? (
                   <WebView
-                    source={{ html: getVideoHtml(myStories[currentStoryIndex].media_url) }}
+                    source={{ html: getVideoHtml(selectedStories[currentStoryIndex].media_url) }}
                     style={styles.storyViewerMedia}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
@@ -591,7 +630,7 @@ export default function DiscoveryScreen() {
                   />
                 ) : (
                   <Image
-                    source={{ uri: myStories[currentStoryIndex].media_url }}
+                    source={{ uri: selectedStories[currentStoryIndex].media_url }}
                     style={styles.storyViewerMedia}
                     resizeMode="cover"
                   />
@@ -608,7 +647,7 @@ export default function DiscoveryScreen() {
                   
                   {/* Progress Bars */}
                   <View style={styles.progressBarsRow}>
-                    {myStories.map((item, idx) => {
+                    {selectedStories.map((item, idx) => {
                       let widthPct = "0%";
                       if (idx < currentStoryIndex) {
                         widthPct = "100%";
@@ -625,12 +664,12 @@ export default function DiscoveryScreen() {
 
                   {/* Profile info & action row */}
                   <View style={styles.storyHeaderProfileRow}>
-                    <Image source={{ uri: myStories[currentStoryIndex].user_avatar }} style={styles.storyHeaderAvatar} />
+                    <Image source={{ uri: selectedStories[currentStoryIndex].user_avatar }} style={styles.storyHeaderAvatar} />
                     <View style={styles.storyHeaderProfileText}>
-                      <Text style={styles.storyHeaderName}>{myStories[currentStoryIndex].user_name}</Text>
+                      <Text style={styles.storyHeaderName}>{selectedStories[currentStoryIndex].user_name}</Text>
                       <Text style={styles.storyHeaderTime}>
                         {(() => {
-                          const diff = Date.now() - new Date(myStories[currentStoryIndex].created_at).getTime();
+                          const diff = Date.now() - new Date(selectedStories[currentStoryIndex].created_at).getTime();
                           const hrs = Math.floor(diff / (1000 * 60 * 60));
                           if (hrs < 1) {
                             const mins = Math.floor(diff / (1000 * 60));
@@ -641,10 +680,12 @@ export default function DiscoveryScreen() {
                       </Text>
                     </View>
                     
-                    {/* Delete button */}
-                    <Pressable onPress={handleDeleteCurrentStory} style={styles.storyActionBtn}>
-                      <Trash2 size={18} color="#FF4B4B" />
-                    </Pressable>
+                    {/* Delete button (only show for self stories) */}
+                    {selectedStories[currentStoryIndex].user_id === user?.id && (
+                      <Pressable onPress={handleDeleteCurrentStory} style={styles.storyActionBtn}>
+                        <Trash2 size={18} color="#FF4B4B" />
+                      </Pressable>
+                    )}
 
                     {/* Close button */}
                     <Pressable onPress={() => setViewStoryModalVisible(false)} style={[styles.storyActionBtn, { marginLeft: 10 }]}>
@@ -680,38 +721,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 14,
-  },
-  locationRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  locationIconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: "#1B1035",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 10,
-  },
-  locationText: {
-    justifyContent: "center",
-  },
-  locationLabel: {
-    color: "#9A8FB8",
-    fontSize: 11,
-    fontFamily: "Inter_400Regular",
-  },
-  locationValueRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  locationValue: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontFamily: "Inter_700Bold",
   },
   bellBtn: {
     width: 42,
@@ -758,12 +767,8 @@ const styles = StyleSheet.create({
   storiesContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(27,16,53,0.35)",
-    padding: 14,
-    borderRadius: 22,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
     marginBottom: 16,
+    paddingVertical: 4,
   },
   storyItem: {
     alignItems: "center",

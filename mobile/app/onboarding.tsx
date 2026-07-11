@@ -73,7 +73,10 @@ export default function OnboardingScreen() {
 
         {/* Dynamic Image Frame */}
         <View className="w-full my-6">
-          <ImagePlaceholder aspectRatio={1.1} />
+          <ImagePlaceholder
+            aspectRatio={1.1}
+            source={require("../assets/images/onboarding-couple.jpg")}
+          />
         </View>
 
         {/* Content Section */}

@@ -1,11 +1,12 @@
 const express = require("express");
+const crypto = require("crypto");
 const db = require("./db");
 const { authenticateToken } = require("./auth");
 
 const router = express.Router();
 
 function generateMatchId() {
-  return "match_" + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+  return "match_" + crypto.randomUUID();
 }
 
 // Route: Record a swipe (like/pass/super)
@@ -53,12 +54,18 @@ router.post("/", authenticateToken, async (req, res) => {
         );
 
         if (existingMatch.rows.length === 0) {
-          const matchInsert = await db.query(
+          let matchInsert = await db.query(
             `INSERT INTO matches (id, user_a, user_b, expires_at)
              VALUES ($1, $2, $3, $4)
+             ON CONFLICT (user_a, user_b) DO NOTHING
              RETURNING *`,
             [matchId, user_a, user_b, expiresAt]
           );
+          if (matchInsert.rows.length === 0) {
+            // Lost the race to a concurrent request — use the row it created
+            matchInsert = await db.query("SELECT * FROM matches WHERE user_a = $1 AND user_b = $2", [user_a, user_b]);
+          }
+          const finalMatchId = matchInsert.rows[0].id;
 
           // Get other user's details for celebration dialog
           const otherUserResult = await db.query(
@@ -72,7 +79,7 @@ router.post("/", authenticateToken, async (req, res) => {
             await db.query(
               `INSERT INTO messages (match_id, sender_id, body)
                VALUES ($1, $2, $3)`,
-              [matchId, swipee_id, mutualSwipe.message]
+              [finalMatchId, swipee_id, mutualSwipe.message]
             );
           }
 
@@ -81,7 +88,7 @@ router.post("/", authenticateToken, async (req, res) => {
             await db.query(
               `INSERT INTO messages (match_id, sender_id, body)
                VALUES ($1, $2, $3)`,
-              [matchId, swiper_id, message]
+              [finalMatchId, swiper_id, message]
             );
           }
 

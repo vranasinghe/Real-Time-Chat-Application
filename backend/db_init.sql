@@ -37,6 +37,40 @@ CREATE TABLE IF NOT EXISTS matches (
   expires_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+-- One-time cleanup: merge any duplicate match rows for the same user pair (created by a
+-- race condition before the unique constraint below existed) into the earliest one,
+-- reassigning their messages rather than discarding them. Safe to run on every boot.
+DO $$
+DECLARE
+  dup RECORD;
+  keep_id VARCHAR(255);
+BEGIN
+  FOR dup IN
+    SELECT user_a, user_b FROM matches GROUP BY user_a, user_b HAVING COUNT(*) > 1
+  LOOP
+    SELECT id INTO keep_id FROM matches
+      WHERE user_a = dup.user_a AND user_b = dup.user_b
+      ORDER BY created_at ASC, id ASC LIMIT 1;
+
+    UPDATE messages SET match_id = keep_id
+      WHERE match_id IN (
+        SELECT id FROM matches
+        WHERE user_a = dup.user_a AND user_b = dup.user_b AND id <> keep_id
+      );
+
+    DELETE FROM matches
+      WHERE user_a = dup.user_a AND user_b = dup.user_b AND id <> keep_id;
+  END LOOP;
+END $$;
+
+-- Prevent duplicate match rows for the same pair of users (user_a/user_b are always sorted by the app)
+DO $$
+BEGIN
+  ALTER TABLE matches ADD CONSTRAINT matches_user_pair_unique UNIQUE (user_a, user_b);
+EXCEPTION
+  WHEN duplicate_object OR duplicate_table THEN NULL;
+END $$;
+
 -- Messages table
 CREATE TABLE IF NOT EXISTS messages (
   id SERIAL PRIMARY KEY,
@@ -51,3 +85,5 @@ CREATE TABLE IF NOT EXISTS messages (
 CREATE INDEX IF NOT EXISTS idx_swipes_swiper ON swipes(swiper_id);
 CREATE INDEX IF NOT EXISTS idx_matches_users ON matches(user_a, user_b);
 CREATE INDEX IF NOT EXISTS idx_messages_match ON messages(match_id);
+CREATE INDEX IF NOT EXISTS idx_profiles_gender ON profiles(gender);
+CREATE INDEX IF NOT EXISTS idx_profiles_looking_for ON profiles(looking_for);

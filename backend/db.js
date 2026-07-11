@@ -18,7 +18,11 @@ const initDb = async () => {
     const sql = fs.readFileSync(sqlPath, "utf8");
     await pool.query(sql);
     console.log("Database tables verified/created successfully.");
-    await seedMockProfiles();
+    if (process.env.NODE_ENV === "production") {
+      console.log("Production environment detected — skipping mock profile seeding.");
+    } else {
+      await seedMockProfiles();
+    }
   } catch (err) {
     console.error("Database initialization failed:", err);
   }
