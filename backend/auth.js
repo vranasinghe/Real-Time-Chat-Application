@@ -45,8 +45,7 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Route: User registration
-router.post("/register", async (req, res) => {
+const handleRegister = async (req, res) => {
   const { email, password, name } = req.body;
   if (!email || !password || !name) {
     return res.status(400).json({ error: "Email, password, and name are required" });
@@ -83,7 +82,10 @@ router.post("/register", async (req, res) => {
     console.error("Registration error:", err);
     res.status(500).json({ error: "Internal server error during registration" });
   }
-});
+};
+
+router.post("/register", handleRegister);
+router.post("/signup", handleRegister);
 
 // Route: User login
 router.post("/login", async (req, res) => {
