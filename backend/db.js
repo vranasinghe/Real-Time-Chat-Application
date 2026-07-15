@@ -5,14 +5,12 @@ require("dotenv").config({ path: path.join(__dirname, ".env") });
 
 const connectionString = process.env.DATABASE_URL;
 if (!connectionString) {
-  console.warn("WARNING: DATABASE_URL environment variable is not defined. Please configure it in your Render settings.");
+  console.warn("WARNING: DATABASE_URL environment variable is not defined. Please configure it in your deployment dashboard (Railway, Render, etc.).");
 }
-
-const isLocalHost = connectionString && (connectionString.includes("localhost") || connectionString.includes("127.0.0.1"));
 
 const pool = new Pool({
   connectionString: connectionString,
-  ssl: connectionString && !isLocalHost
+  ssl: connectionString && (connectionString.includes("supabase.co") || connectionString.includes("supabase.com"))
     ? { rejectUnauthorized: false }
     : false
 });
