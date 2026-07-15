@@ -186,7 +186,7 @@ export default function SignInScreen() {
           {/* Footer Section */}
           <View className="items-center pb-6 flex-row justify-center">
             <Text className="text-text-secondary font-sans text-[15px]">
-              Don't have any account?{" "}
+              {"Don't have any account? "}
             </Text>
             <Pressable onPress={() => router.push("/auth/create-account")}>
               <Text className="text-primary font-sans font-bold text-[15px]">

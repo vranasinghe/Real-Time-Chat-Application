@@ -63,7 +63,7 @@ export default function PrivacyPolicyScreen() {
             4. Security Measures
           </Text>
           <Text className="text-text-secondary font-sans text-[14px] leading-6 mb-8">
-            We prioritize your data's safety with advanced security protocols, encryption methods, and regular audits to protect against unauthorized access or breaches.
+            {"We prioritize your data's safety with advanced security protocols, encryption methods, and regular audits to protect against unauthorized access or breaches."}
           </Text>
         </ScrollView>
 

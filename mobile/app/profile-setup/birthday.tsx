@@ -61,10 +61,10 @@ export default function BirthdaySetupScreen() {
           {/* Header */}
           <View className="mt-8 mb-10">
             <Text className="text-white text-3xl font-bold font-display tracking-tight mb-2">
-              When's your Birthday?
+              {"When's your Birthday?"}
             </Text>
             <Text className="text-text-secondary text-base font-sans leading-6">
-              Your age will be visible to your matches, but we don't display your actual birth date.
+              {"Your age will be visible to your matches, but we don't display your actual birth date."}
             </Text>
           </View>
 

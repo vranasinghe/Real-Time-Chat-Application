@@ -115,9 +115,9 @@ export function SwipeDeck({ profiles, onSwipe, onMessagePress, onReset }: SwipeD
         <View style={styles.emptyIconWrap}>
           <Heart size={32} color="#9A8FB8" />
         </View>
-        <Text style={styles.emptyTitle}>That's Everyone!</Text>
+        <Text style={styles.emptyTitle}>{"That's Everyone!"}</Text>
         <Text style={styles.emptyBody}>
-          You've seen all profiles nearby. Check back later or start over!
+          {"You've seen all profiles nearby. Check back later or start over!"}
         </Text>
         {onReset && (
           <Pressable onPress={onReset} style={styles.resetBtn}>
@@ -227,7 +227,7 @@ export function SwipeDeck({ profiles, onSwipe, onMessagePress, onReset }: SwipeD
                     <View style={styles.swipeNoteBubble}>
                       <Text style={styles.swipeNoteLabel}>Intro Note 💌</Text>
                       <Text style={styles.swipeNoteText} numberOfLines={2}>
-                        "{profile.swipe_message}"
+                        &quot;{profile.swipe_message}&quot;
                       </Text>
                     </View>
                   )}

@@ -66,7 +66,7 @@ export default function GetStartedScreen() {
         <View className="items-center justify-center mt-6 mb-4">
           {/* Let's Get Started Title & Subtitle */}
           <Text className="text-white text-3.5xl font-bold font-display text-center tracking-tight mb-3">
-            Let's Get Started
+            {"Let's Get Started"}
           </Text>
           <Text className="text-text-secondary text-base font-sans text-center px-6 leading-6">
             Discover love, your way with Dateza
