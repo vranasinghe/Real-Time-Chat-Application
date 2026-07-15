@@ -38,7 +38,8 @@ app.use(express.json());
 // Rate limit auth endpoints to slow down credential stuffing / brute force
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 20,
+  limit: 100, // Increased for development testing
+  message: { error: "Too many login attempts. Please try again after 15 minutes." },
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -47,7 +48,8 @@ app.use("/api/auth", authLimiter);
 // General API rate limit
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  limit: 120,
+  limit: 300, // Increased for development testing
+  message: { error: "Too many requests. Please try again later." },
   standardHeaders: true,
   legacyHeaders: false,
 });

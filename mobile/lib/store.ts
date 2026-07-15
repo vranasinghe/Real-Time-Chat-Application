@@ -278,7 +278,13 @@ export const useAppStore = create<AppState>()(
             body: JSON.stringify({ email, password }),
           });
 
-          const data = await res.json();
+          let data: any = {};
+          try {
+            const text = await res.text();
+            data = text ? JSON.parse(text) : {};
+          } catch (jsonErr) {
+            data = { error: `Server error (${res.status}). Please try again.` };
+          }
           if (!res.ok) throw new Error(data.error || "Login failed");
 
           set({
@@ -325,7 +331,13 @@ export const useAppStore = create<AppState>()(
             body: JSON.stringify({ email, password, name }),
           });
 
-          const data = await res.json();
+          let data: any = {};
+          try {
+            const text = await res.text();
+            data = text ? JSON.parse(text) : {};
+          } catch (jsonErr) {
+            data = { error: `Server error (${res.status}). Please try again.` };
+          }
           if (!res.ok) throw new Error(data.error || "Signup failed");
 
           set({
