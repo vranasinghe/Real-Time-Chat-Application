@@ -285,7 +285,7 @@ export const useAppStore = create<AppState>()(
           } catch (jsonErr) {
             data = { error: `Server error (${res.status}). Please try again.` };
           }
-          if (!res.ok) throw new Error(data.error || "Login failed");
+          if (!res.ok) throw new Error(data.error || data.message || "Login failed");
 
           set({
             token: data.token,
@@ -338,7 +338,7 @@ export const useAppStore = create<AppState>()(
           } catch (jsonErr) {
             data = { error: `Server error (${res.status}). Please try again.` };
           }
-          if (!res.ok) throw new Error(data.error || "Signup failed");
+          if (!res.ok) throw new Error(data.error || data.message || "Signup failed");
 
           set({
             token: data.token,
