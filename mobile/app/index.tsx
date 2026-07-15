@@ -1,23 +1,29 @@
 import React, { useEffect } from "react";
 import { View, Text, Image, Pressable, Dimensions } from "react-native";
-import { router } from "expo-router";
+import { router, useRootNavigationState } from "expo-router";
 import { useAppStore } from "@/lib/store";
 
 const { height } = Dimensions.get("window");
 
 export default function SplashScreen() {
   const { session, profileSetupComplete } = useAppStore();
+  const rootNavigationState = useRootNavigationState();
 
   useEffect(() => {
+    if (!rootNavigationState?.key) return;
+
     // Auto-login logic if session exists
     if (session) {
-      if (profileSetupComplete) {
-        router.replace("/(tabs)");
-      } else {
-        router.replace("/profile-setup/birthday");
-      }
+      const timer = setTimeout(() => {
+        if (profileSetupComplete) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/profile-setup/birthday");
+        }
+      }, 50);
+      return () => clearTimeout(timer);
     }
-  }, [session, profileSetupComplete]);
+  }, [session, profileSetupComplete, rootNavigationState?.key]);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#1A0F3D" }}>

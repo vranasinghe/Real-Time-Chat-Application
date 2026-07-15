@@ -1,8 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import io from "socket.io-client/dist/socket.io.js";
+import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
+import * as WebBrowser from "expo-web-browser";
+import * as Linking from "expo-linking";
 
 import { Platform } from "react-native";
 
@@ -16,6 +18,7 @@ let socketConnection: Socket | null = null;
 
 export interface Profile {
   id: string;
+  email?: string;
   name: string;
   birthdate: string;
   gender: string;
@@ -94,6 +97,7 @@ interface AppState {
   checkSupabaseConnection: () => boolean;
   signIn: (email: string, pass: string) => Promise<boolean>;
   signUp: (email: string, pass: string, name: string) => Promise<boolean>;
+  signInWithGoogle: () => Promise<boolean>;
   completeSetup: (profileData: Partial<Profile>) => Promise<void>;
   signOut: () => Promise<void>;
   createQuickMatch: (profile: Profile) => Promise<{ success: boolean; error?: string }>;
@@ -152,6 +156,7 @@ export const useAppStore = create<AppState>()(
       activeMatch: null,
 
       initializeStore: async () => {
+        WebBrowser.maybeCompleteAuthSession();
         const connected = get().checkSupabaseConnection();
         set({ isUsingSupabase: connected });
 
@@ -355,6 +360,70 @@ export const useAppStore = create<AppState>()(
           profileSetupComplete: false,
         });
         return true;
+      },
+
+      signInWithGoogle: async () => {
+        const isConnected = get().isUsingSupabase;
+        if (!isConnected) {
+          // Mock Sign-In Fallback for Google (Local development without backend)
+          const mockGoogleUser: Profile = {
+            id: "google-user-mock-id",
+            email: "google-dev@example.com",
+            name: "Google Developer",
+            birthdate: "",
+            gender: "",
+            looking_for: "",
+            bio: "",
+            height_cm: 0,
+            interests: [],
+            photos: [],
+            is_online: true,
+          };
+          set({
+            user: mockGoogleUser,
+            session: true,
+            profileSetupComplete: false,
+          });
+          return true;
+        }
+
+        try {
+          const redirectUrl = Linking.createURL("auth-callback");
+          // Fetch Google OAuth Redirect URL from backend
+          const res = await fetch(`${BACKEND_URL}/api/auth/google/url?redirect_uri=${encodeURIComponent(redirectUrl)}`);
+          if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error || "Failed to generate Google URL");
+          }
+
+          const { url } = await res.json();
+          
+          // Open web auth session
+          const result = await WebBrowser.openAuthSessionAsync(url, redirectUrl);
+          
+          if (result.type === "success" && result.url) {
+            const parsed = Linking.parse(result.url);
+            const token = parsed.queryParams?.token;
+            const userStr = parsed.queryParams?.user;
+
+            if (token && userStr) {
+              const userObj = JSON.parse(decodeURIComponent(userStr as string));
+              set({
+                token: token as string,
+                user: userObj,
+                session: true,
+                profileSetupComplete: !!userObj.name && !!userObj.birthdate,
+              });
+              get().getSocketConnection();
+              await get().fetchMatches();
+              return true;
+            }
+          }
+          return false;
+        } catch (err) {
+          console.error("Google login failed:", err);
+          throw err;
+        }
       },
 
       completeSetup: async (profileData) => {
@@ -659,26 +728,28 @@ export const useAppStore = create<AppState>()(
           return null;
         }
 
-        if (!socketConnection) {
-          socketConnection = io(BACKEND_URL, {
+        let conn = socketConnection;
+        if (!conn) {
+          conn = io(BACKEND_URL, {
             auth: { token },
             extraHeaders: {
               Authorization: `Bearer ${token}`,
             },
           });
+          socketConnection = conn;
 
-          socketConnection.on("connect", () => {
+          conn.on("connect", () => {
             console.log("Websocket connection successfully established.");
             
             // Join all active match rooms on reconnect
             const currentMatches = get().matches;
             currentMatches.forEach((match) => {
-              socketConnection?.emit("join_room", match.id);
+              conn?.emit("join_room", match.id);
             });
           });
 
           // Global real-time chat sync listener
-          socketConnection.on("new_message", (message: Message) => {
+          conn.on("new_message", (message: Message) => {
             set((state) => {
               const msgExists = state.messages.some((m) => m.id === message.id);
               if (msgExists) return {};

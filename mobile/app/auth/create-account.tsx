@@ -54,6 +54,27 @@ export default function CreateAccountScreen() {
   const [error, setError] = useState("");
   
   const signUpStore = useAppStore((state) => state.signUp);
+  const signInWithGoogle = useAppStore((state) => state.signInWithGoogle);
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const success = await signInWithGoogle();
+      setLoading(false);
+      if (success) {
+        const setupComplete = useAppStore.getState().profileSetupComplete;
+        if (setupComplete) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/profile-setup/birthday");
+        }
+      }
+    } catch (e: any) {
+      setLoading(false);
+      setError(e.message || "Google Sign-In failed.");
+    }
+  };
 
   // Quick strength validation for routing allowance
   const isPasswordValid = (pass: string) => {
@@ -170,7 +191,7 @@ export default function CreateAccountScreen() {
             {/* Social Buttons */}
             <View className="flex-row justify-center" style={{ gap: 16 }}>
               <Pressable
-                onPress={() => Alert.alert("Google Auth", "Google Sign Up triggered.")}
+                onPress={handleGoogleSignIn}
                 style={{ width: 64, height: 54 }}
                 className="bg-bg-surface border border-text-secondary/10 active:bg-text-secondary/5 rounded-2xl items-center justify-center"
               >

@@ -15,6 +15,10 @@ const pool = new Pool({
     : false
 });
 
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle database client:", err);
+});
+
 const bcrypt = require("bcryptjs");
 
 const initDb = async () => {

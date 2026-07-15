@@ -6,7 +6,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import * as SplashScreen from "expo-splash-screen";
 import { useAppStore } from "@/lib/store";
-import { DarkTheme, ThemeProvider } from "expo-router/react-navigation";
+import { DarkTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
 import {
   SpaceGrotesk_700Bold,

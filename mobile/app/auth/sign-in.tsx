@@ -44,6 +44,27 @@ export default function SignInScreen() {
   const [error, setError] = useState("");
 
   const signInStore = useAppStore((state) => state.signIn);
+  const signInWithGoogle = useAppStore((state) => state.signInWithGoogle);
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setLoading(true);
+    try {
+      const success = await signInWithGoogle();
+      setLoading(false);
+      if (success) {
+        const setupComplete = useAppStore.getState().profileSetupComplete;
+        if (setupComplete) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/profile-setup/birthday");
+        }
+      }
+    } catch (e: any) {
+      setLoading(false);
+      setError(e.message || "Google Sign-In failed.");
+    }
+  };
 
   const handleSignIn = async () => {
     if (!email || !password) {
@@ -145,7 +166,7 @@ export default function SignInScreen() {
             {/* Social Buttons */}
             <View className="flex-row justify-between" style={{ gap: 12 }}>
               <Pressable
-                onPress={() => Alert.alert("Google Auth", "Google Sign In triggered.")}
+                onPress={handleGoogleSignIn}
                 className="flex-1 flex-row bg-bg-surface border border-text-secondary/10 active:bg-text-secondary/5 rounded-2xl py-3.5 items-center justify-center"
               >
                 <GoogleIcon />

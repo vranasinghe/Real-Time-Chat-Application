@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, SafeAreaView, Pressable, Alert, ScrollView } from "react-native";
 import { router } from "expo-router";
+import { useAppStore } from "@/lib/store";
 import { PrimaryButton } from "@/components/PrimaryButton";
 import { ImagePlaceholder } from "@/components/ImagePlaceholder";
 import Svg, { Path } from "react-native-svg";
@@ -36,6 +37,24 @@ const FacebookIcon = () => (
 );
 
 export default function GetStartedScreen() {
+  const signInWithGoogle = useAppStore((state) => state.signInWithGoogle);
+
+  const handleGoogleSignIn = async () => {
+    try {
+      const success = await signInWithGoogle();
+      if (success) {
+        const setupComplete = useAppStore.getState().profileSetupComplete;
+        if (setupComplete) {
+          router.replace("/(tabs)");
+        } else {
+          router.replace("/profile-setup/birthday");
+        }
+      }
+    } catch (e: any) {
+      Alert.alert("Google Auth Error", e.message || "Google Sign-In failed.");
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-bg-base">
       <ScrollView
@@ -77,7 +96,7 @@ export default function GetStartedScreen() {
           <View>
             {/* Google button */}
             <Pressable
-              onPress={() => Alert.alert("Google Auth", "Google Sign Up flow triggered.")}
+              onPress={handleGoogleSignIn}
               className="w-full border border-white/10 bg-bg-surface/30 active:bg-white/5 rounded-[28px] py-4 px-6 flex-row items-center justify-center"
             >
               <GoogleIcon />
