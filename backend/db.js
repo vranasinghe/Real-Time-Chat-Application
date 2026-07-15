@@ -8,9 +8,11 @@ if (!connectionString) {
   console.warn("WARNING: DATABASE_URL environment variable is not defined. Please configure it in your Render settings.");
 }
 
+const isLocalHost = connectionString && (connectionString.includes("localhost") || connectionString.includes("127.0.0.1"));
+
 const pool = new Pool({
   connectionString: connectionString,
-  ssl: connectionString && (connectionString.includes("supabase.co") || connectionString.includes("supabase.com"))
+  ssl: connectionString && !isLocalHost
     ? { rejectUnauthorized: false }
     : false
 });
