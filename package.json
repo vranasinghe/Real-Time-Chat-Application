@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "description": "Root workspace for Dateza dating application",
   "scripts": {
+    "build": "npm install --prefix backend",
+    "start": "npm start --prefix backend",
     "dev": "npm --prefix backend run dev",
     "dev:backend": "npm --prefix backend run dev",
     "dev:mobile": "npm --prefix mobile start",
