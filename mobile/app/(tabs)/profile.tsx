@@ -44,7 +44,7 @@ export default function MyProfileScreen() {
           {/* Avatar frame with Edit overlay */}
           <View className="relative w-24 h-24 mb-4">
             <View className="w-24 h-24 rounded-full border-2 border-primary overflow-hidden items-center justify-center">
-              {user?.photos[0] ? (
+              {user?.photos && user.photos.length > 0 ? (
                 <Image source={{ uri: user.photos[0] }} className="w-full h-full object-cover" />
               ) : (
                 <View className="w-full h-full bg-bg-surface items-center justify-center">

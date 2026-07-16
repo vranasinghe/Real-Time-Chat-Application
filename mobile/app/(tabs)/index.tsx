@@ -320,7 +320,12 @@ export default function DiscoveryScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={styles.container}
+        scrollEnabled={Platform.OS === 'web'}
+        showsVerticalScrollIndicator={false}
+      >
 
         {/* ── Header ── */}
         <View style={styles.header}>
@@ -699,7 +704,7 @@ export default function DiscoveryScreen() {
           </SafeAreaView>
         </Modal>
 
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }

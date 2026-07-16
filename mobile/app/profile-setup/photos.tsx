@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { Camera, Plus, Trash2 } from "lucide-react-native";
 import { useAppStore } from "@/lib/store";
 import { PrimaryButton, GhostButton } from "@/components/PrimaryButton";
+import * as ImagePicker from "expo-image-picker";
 
 const MOCK_GALLERY = [
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80",
@@ -16,20 +17,26 @@ export default function PhotosSetupScreen() {
   const [uploadedPhotos, setUploadedPhotos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handlePhotoClick = (index: number) => {
+  const handlePhotoClick = async (index: number) => {
     // If photo exists in this slot, delete it
     if (uploadedPhotos[index]) {
       const newPhotos = [...uploadedPhotos];
       newPhotos.splice(index, 1);
       setUploadedPhotos(newPhotos);
     } else {
-      // Simulate photo pick from device, load one from the mock gallery
-      const nextMockPhoto = MOCK_GALLERY[uploadedPhotos.length];
-      if (nextMockPhoto) {
-        setUploadedPhotos([...uploadedPhotos, nextMockPhoto]);
-      } else {
-        // Fallback random portrait if they try to upload more
-        setUploadedPhotos([...uploadedPhotos, "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&auto=format&fit=crop&q=80"]);
+      // Pick photo from device gallery
+      try {
+        const result = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: ['images'],
+          allowsEditing: true,
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          setUploadedPhotos([...uploadedPhotos, result.assets[0].uri]);
+        }
+      } catch (error) {
+        Alert.alert("Error", "Could not pick an image from the gallery.");
       }
     }
   };

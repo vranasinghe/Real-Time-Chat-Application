@@ -6,6 +6,11 @@
 @tailwind utilities;
 
 @layer base {
+  /* Ensure web root takes full height to allow ScrollViews to work correctly */
+  html, body, #root {
+    height: 100vh;
+  }
+  
   body {
     background-color: #0E0720;
     color: #FFFFFF;

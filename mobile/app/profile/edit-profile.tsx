@@ -67,7 +67,7 @@ export default function EditProfileScreen() {
         {/* Editable Avatar */}
         <View className="items-center mb-8 relative">
           <View className="w-24 h-24 rounded-full border border-white/10 overflow-hidden items-center justify-center bg-bg-surface">
-            {user?.photos[0] ? (
+            {user?.photos && user.photos.length > 0 ? (
               <Image source={{ uri: user.photos[0] }} className="w-full h-full object-cover" />
             ) : (
               <User size={36} color="#9A8FB8" />

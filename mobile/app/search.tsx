@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, SafeAreaView, Pressable, TextInput, ScrollView, Image } from "react-native";
-import { router } from "expo-router";
+import { router, useRouter } from "expo-router";
 import { ArrowLeft, Search, MoreHorizontal, Mic, Smile } from "lucide-react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { useAppStore } from "@/lib/store";
@@ -25,11 +25,13 @@ export default function SearchScreen() {
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const routerHook = useRouter();
+
   const handleBack = () => {
-    if (router.canGoBack()) {
-      router.back();
+    if (routerHook.canGoBack()) {
+      routerHook.back();
     } else {
-      router.replace("/(tabs)");
+      routerHook.replace("/(tabs)");
     }
   };
 

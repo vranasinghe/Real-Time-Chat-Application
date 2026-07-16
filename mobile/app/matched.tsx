@@ -20,6 +20,8 @@ import { ArrowLeft, Image as ImageIcon, Heart } from "lucide-react-native";
 import { useAppStore } from "@/lib/store";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Defs, ClipPath, Path, Image as SvgImage } from "react-native-svg";
+import { Platform, ScrollView } from "react-native";
+
 
 const { width: SW } = Dimensions.get("window");
 
@@ -149,7 +151,12 @@ export default function MatchedScreen() {
       </View>
 
       {/* Main Content Scrollable for safety */}
-      <View style={styles.contentWrap}>
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1 }}
+        style={styles.contentWrap}
+        scrollEnabled={Platform.OS === 'web'}
+        showsVerticalScrollIndicator={false}
+      >
         
         {/* Floating/Falling Hearts Background */}
         <View style={[styles.floatingHeart, { top: "8%", left: "10%" }]}>
@@ -206,7 +213,7 @@ export default function MatchedScreen() {
           <Text style={styles.chatBtnText}>Lets Chat</Text>
         </Pressable>
 
-      </View>
+      </ScrollView>
     </View>
   );
 }
